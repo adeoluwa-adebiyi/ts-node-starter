@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "target": "ES5",
+    //   "module": "commonjs",
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./custom-types",
+    ],
+    "exclude": ["node_modules", ]
+}
