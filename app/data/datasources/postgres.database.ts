@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import { InvalidArgumentsException } from "../../domain/usecases/exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../../common/exceptions/invalid-arguments.exception";
 import { CredentialDatabase, UrlDatabase } from "./datasource.interface";
 
 export class PostgresDatabase implements CredentialDatabase<Client>{

@@ -1,5 +1,5 @@
 import { UseCaseSpec } from "./contracts/usecasespec.interface";
-import { InvalidArgumentsException } from "./exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../../common/exceptions/invalid-arguments.exception";
 
 export class TestUseCase implements UseCaseSpec<boolean>{
     execute({number=null}): boolean {

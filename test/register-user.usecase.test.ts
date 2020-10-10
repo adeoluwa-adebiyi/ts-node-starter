@@ -9,7 +9,7 @@ import { UserModel } from "../app/domain/entities/user.model";
 import { USER_REGISTRATION_CREDENTIALS } from "./test.data";
 import { database } from "faker";
 import { afterTestRoutine, beforeTestRoutine } from "./test-routines";
-import { InvalidArgumentsException } from "../app/domain/usecases/exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../app/common/exceptions/invalid-arguments.exception";
 
 
 const passwordHasher: PasswordHasherSpec = container.resolve("PasswordHasherSpec");

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { InvalidConnectionURLException } from "../app/common/exceptions/invalid-connection-url.exception";
 import { DB_HOST, DB_PASSWORD, DB_PORT, DB_URI, DB_USERNAME, DB_NAME } from "../app/config/app.config";
 import { PostgresDatabase } from "../app/data/datasources/postgres.database";
-import { InvalidArgumentsException } from "../app/domain/usecases/exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../app/common/exceptions/invalid-arguments.exception";
 import { POSTGRES_SQL_CONNECTION_URL, POSTGRES_SQL_INVALID_CONNECTION_URL } from "./test.data";
 
 

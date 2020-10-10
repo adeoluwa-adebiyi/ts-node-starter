@@ -3,7 +3,7 @@ import { autoInjectable, inject, injectable } from "tsyringe";
 import { getAutomaticTypeDirectiveNames } from "typescript";
 import { ObjectNotFoundException } from "../../../common/exceptions/object-not-found.exception";
 import { UserAuthId, UserModel, UserWithAuthCredJSON } from "../../../domain/entities/user.model";
-import { InvalidArgumentsException } from "../../../domain/usecases/exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../../../common/exceptions/invalid-arguments.exception";
 import { RegisterUserUsecaseParams } from "../../../domain/usecases/register-user.usecase";
 import { DatabaseSpec } from "../../datasources/datasource.interface";
 import { UserRepositorySpec } from "../repository.interface";

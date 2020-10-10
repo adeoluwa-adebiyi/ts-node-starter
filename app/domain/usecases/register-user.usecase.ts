@@ -6,7 +6,7 @@ import { PasswordHasherSpec } from "../../common/core/hashers/contract/hasher.in
 import { UserRepositorySpec } from "../../data/repositories/repository.interface";
 import { UserModel } from "../entities/user.model";
 import { UseCaseSpec } from "./contracts/usecasespec.interface";
-import { InvalidArgumentsException } from "./exceptions/invalid-arguments.exception";
+import { InvalidArgumentsException } from "../../common/exceptions/invalid-arguments.exception";
 
 export interface UserRegistrationResponseJSON{
     user: UserModel
