@@ -1,9 +1,8 @@
 import "reflect-metadata";
 import { expect } from "chai";
-import { Argon2Hasher } from "../app/common/auth/hashers/argon2.hasher";
 import argon2 from "argon2";
-import { Argon2PasswordHasher } from "../app/common/auth/hashers/argon2.passwordhasher";
 import { passwordTestData, invalidArgon2PasswordHash } from "./test.data";
+import { Argon2PasswordHasher } from "../app/common/core/hashers/argon2.passwordhasher";
 
 const argon2PasswordHasher: Argon2PasswordHasher = new Argon2PasswordHasher();
 const data = passwordTestData;

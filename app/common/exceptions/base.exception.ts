@@ -1,10 +1,11 @@
-export class BaseException extends Error{
+import { Exception } from "./exception.interface";
 
-    public message: string;
+export class BaseException extends Error{
 
     constructor(message: string, name="BaseException"){
         super(message);
         this.name = name;
         Object.setPrototypeOf(this, new.target.prototype);
     }
+
 }

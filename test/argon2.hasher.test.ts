@@ -1,7 +1,7 @@
 import argon2 from "argon2"
 import { expect } from "chai";
 import "reflect-metadata";
-import { Argon2Hasher } from "../app/common/auth/hashers/argon2.hasher";
+import { Argon2Hasher } from "../app/common/core/hashers/argon2.hasher";
 import { invalidArgon2PasswordHash, passwordTestData } from "./test.data";
 
 const data: string = passwordTestData;

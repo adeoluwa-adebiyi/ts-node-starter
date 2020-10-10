@@ -8,11 +8,11 @@ describe("Tests User model serialization property",()=>{
         id:1,
         firstname: "Austin",
         lastname:"Powell",
-        dob: Date.now()
+        dob: new Date(Date.now()).toLocaleDateString().replace("/","-").replace("/","-")
     };
 
     it("Should serialize User model to JSON",()=>{
-        expect(new UserModel().toJSON(), userModelObject);
+        expect(new UserModel().fromJSON(userModelObject).toJSON(), userModelObject);
     });
 
     it("Should deserialize User model from JSON",()=>{

@@ -1,42 +1,72 @@
-import { Serializable } from "../../common/contracts/serializable.interface";
+import { StringLiteral } from "typescript";
+import { Serializable } from "../../common/core/contracts/serializable.interface";
+
+export interface UserAuthId{
+    id?: number;
+    email?: string;
+}
+
+export interface UserWithAuthCredJSON extends UserJSON{
+    passwordHash: string;
+}
 
 export interface UserJSON{
-    id: number;
+    id?: number;
 
-    firstname: string;
+    firstname?: string;
 
-    lastname: string;
+    lastname?: string;
 
-    dob: Date;
+    dob?: string;
+
+    email: string;
 }
 
 export class UserModel implements Serializable<UserModel>{
 
-    private id: number;
+     id: number;
 
-    private firstname: string;
+     firstname: string;
 
-    private lastname: string;
+     lastname: string;
 
-    private dob: Date;
+     dob: Date;
 
-    constructor(id:number=null, firstname: string=null, lastname: string=null, dob: Date=null){
+     email: string;
+
+     passwordHash: string;
+
+    constructor(id:number=null, firstname: string=null, lastname: string=null, dob: Date=null, email: string=null, passwordHash:string = null){
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.dob = dob;
+        this.email = email;
+        this.passwordHash = passwordHash;
     }
 
-    toJSON(): any {
+    toJSON(): UserJSON {
         return {
             id: this.id,
             firstname: this.firstname,
             lastname: this.lastname,
-            dob: this.dob
+            dob: this.dob.toLocaleDateString(),
+            email: this.email
+        } 
+    }
+
+    toJSONWithAuthCred(): UserWithAuthCredJSON {
+        return {
+            id: this.id,
+            firstname: this.firstname,
+            lastname: this.lastname,
+            dob: this.dob.toLocaleDateString(),
+            email: this.email,
+            passwordHash: this.passwordHash
         } 
     }
     
     fromJSON(json: any): UserModel {
-        return new UserModel(json.id, json.firstname, json.lastname, json.dob);
+        return new UserModel(json.id, json.firstname, json.lastname, new Date(json.dob), json.email, json.passwordhash?json.passwordhash:null);
     }
 }

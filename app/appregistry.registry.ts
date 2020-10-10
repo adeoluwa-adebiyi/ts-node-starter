@@ -9,13 +9,31 @@ import { JWTAuthentication } from "./server/authentication/jwt.authication";
 import { ExpressWebServer } from "./server/express.webserver";
 import express from "express";
 import secure from "secure-random";
-import { Argon2PasswordHasher } from "./common/auth/hashers/argon2.passwordhasher";
-import { Argon2Hasher } from "./common/auth/hashers/argon2.hasher";
-import { PasswordHasherSpec } from "./common/auth/hashers/contract/hasher.interface";
 
-const APP_SECRET = "9B33B815C7E4CBC32CB04CCF7ABCB34E51000DE072241D698E3F7C797912E7A9";
+import { Argon2PasswordHasher } from "./common/core/hashers/argon2.passwordhasher";
+import { PasswordHasherSpec } from "./common/core/hashers/contract/hasher.interface";
+import { UserRepositorySpec } from "./data/repositories/repository.interface";
+import { KnexUserRepository } from "./data/repositories/knex/user.repository";
+import { getEffectiveConstraintOfTypeParameter } from "typescript";
+import { DatabaseSpec } from "./data/datasources/datasource.interface";
+import { KnexClient, KnexSqlDatabase } from "./data/datasources/knexsql.database";
+import { PORT, HOST, DB_URI, SECRET, DB_HOST, DB_PORT, DB_USERNAME, DB_NAME, DB_PASSWORD } from "./config/app.config"
+import { PostgresDatabase } from "./data/datasources/postgres.database";
+import { PgSQLUserRepository } from "./data/repositories/postgresql/user.repository";
+
+const APP_SECRET = SECRET;
+const DATABASE = new PostgresDatabase();
+
+DATABASE.setConnection(DB_HOST, Number(DB_PORT), DB_USERNAME, DB_NAME, DB_PASSWORD);
 
 container.register<RoutableWebServerSpec>("RoutableWebServerSpec", {useClass: ExpressWebServer});
 container.register<TokenAuthSpec>("TokenAuthSpec", {useValue: new JWTTokenAuthAlgorithm(APP_SECRET)});
 container.register<AuthenticationSpec<express.RequestHandler>>("AuthenticationSpec<<express.RequestHandler>>", {useClass: JWTAuthentication});
 container.register<PasswordHasherSpec>("PasswordHasherSpec", { useValue: new Argon2PasswordHasher()});
+
+
+//Database
+// container.register<DatabaseSpec>("DatabaseSpec", {useValue: new KnexSqlDatabase(KnexClient.POSTGRESQL, DB_URI)})
+container.register<DatabaseSpec>("DatabaseSpec", {useValue: DATABASE});
+
+container.register<UserRepositorySpec>("UserRepositorySpec", { useClass: PgSQLUserRepository});
