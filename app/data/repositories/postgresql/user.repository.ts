@@ -32,6 +32,7 @@ export const transformDbResultToObject = (resultArray: Array<any>): UserWithAuth
 
 
 @autoInjectable()
+@injectable()
 export class PgSQLUserRepository implements UserRepositorySpec{
 
     constructor(@inject("DatabaseSpec")private database?: DatabaseSpec){

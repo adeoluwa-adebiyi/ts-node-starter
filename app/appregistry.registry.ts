@@ -26,6 +26,8 @@ const DATABASE = new PostgresDatabase();
 
 DATABASE.setConnection(DB_HOST, Number(DB_PORT), DB_USERNAME, DB_NAME, DB_PASSWORD);
 
+container.register<DatabaseSpec>("DatabaseSpec", {useValue: DATABASE});
+container.register<UserRepositorySpec>("UserRepositorySpec", { useClass: PgSQLUserRepository});
 container.register<RoutableWebServerSpec>("RoutableWebServerSpec", {useClass: ExpressWebServer});
 container.register<TokenAuthSpec>("TokenAuthSpec", {useValue: new JWTTokenAuthAlgorithm(APP_SECRET)});
 container.register<AuthenticationSpec<express.RequestHandler>>("AuthenticationSpec<<express.RequestHandler>>", {useClass: JWTAuthentication});
@@ -34,6 +36,3 @@ container.register<PasswordHasherSpec>("PasswordHasherSpec", { useValue: new Arg
 
 //Database
 // container.register<DatabaseSpec>("DatabaseSpec", {useValue: new KnexSqlDatabase(KnexClient.POSTGRESQL, DB_URI)})
-container.register<DatabaseSpec>("DatabaseSpec", {useValue: DATABASE});
-
-container.register<UserRepositorySpec>("UserRepositorySpec", { useClass: PgSQLUserRepository});

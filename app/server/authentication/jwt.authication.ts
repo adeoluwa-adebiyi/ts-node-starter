@@ -1,13 +1,13 @@
 import { AuthenticationSpec } from "../contracts/authenticationspec.interface";
-
-import express from "express";
+ import express from "express";
 import { inject, injectable } from "tsyringe";
 import { TokenAuthSpec } from "../contracts/tokenauthspec.interface";
+import { UserRepositorySpec } from "../../data/repositories/repository.interface";
 
 @injectable()
 export class JWTAuthentication implements AuthenticationSpec<express.RequestHandler>{
 
-    constructor(@inject("TokenAuthSpec") private tokenAuthentication: TokenAuthSpec){}
+    constructor(@inject("TokenAuthSpec") private tokenAuthentication?: TokenAuthSpec, @inject("UserRepositorySpec") private userRepository?: UserRepositorySpec){}
 
     provideAuthentication(): express.RequestHandler{
         const requestHandler: express.RequestHandler = (req, res, next)=>{
