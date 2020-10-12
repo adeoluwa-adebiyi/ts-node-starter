@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx ts-node app/app.entry.ts --types ./typings/custom-env/index.d.ts ",
-    "test": "npx ts-node seed_db.ts; npx mocha -r ts-node/register test/**.ts",
+    "test": "npx mocha -r ts-node/register test/**/**.ts specs --no-timeout",
     "start:watch": "npx nodemon --watch 'app/**/*.ts' --ignore 'app/**/*.spec.ts' --exec 'ts-node' app/app.entry.ts"
   },
   "author": "QodeZilla",
@@ -29,6 +29,7 @@
     "@types/sqlite3": "^3.1.6",
     "argon2": "^0.27.0",
     "axios": "^0.20.0",
+    "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "custom-env": "^2.0.1",
     "dotenv": "^8.2.0",

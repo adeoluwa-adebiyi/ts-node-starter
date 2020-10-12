@@ -14,6 +14,7 @@ import { ObjectNotFoundException } from "../app/common/exceptions/object-not-fou
 import { exit } from "process";
 import { USER_REGISTRATION_CREDENTIALS } from "./test.data";
 import { afterTestRoutine, beforeTestRoutine } from "./test-routines";
+import { emptyDB, seedDB } from "../seed_db";
 
 const USER_TABLE = "bb";
 const userRepository:UserRepositorySpec = container.resolve("UserRepositorySpec");
@@ -33,6 +34,9 @@ describe("Tests UserRepository functionality", ()=>{
         await database.connect();
         const fixture  =  JSON.parse(fs.readFileSync(path.resolve("./app/data/fixtures/users.fixture.json")).toString());
         users = { users } = fixture;
+        emptyDB(database).then(async()=>{
+            await seedDB(database);
+        });
     });
 
     it("Should fetch a user by id from datasource correctly",async ()=>{
@@ -65,6 +69,7 @@ describe("Tests UserRepository functionality", ()=>{
     });
 
     it("Should correctly delete a user", async()=>{
+
         database.getConnector().query(`DELETE FROM ${USER_TABLE} WHERE email = $1`,[userCredentials.email]).then(async()=>{
             let user: UserModel =  await userRepository.createUser({...userCredentials});
             if(user){

@@ -6,10 +6,12 @@ import { UserRepositorySpec } from "../app/data/repositories/repository.interfac
 import { expect } from "chai";
 import { RegisterUserUsecase, RegisterUserUsecaseParams, UserRegistrationResponse } from "../app/domain/usecases/register-user.usecase";
 import { UserModel } from "../app/domain/entities/user.model";
-import { USER_REGISTRATION_CREDENTIALS } from "./test.data";
+import { userLoginCredentials, USER_REGISTRATION_CREDENTIALS } from "./test.data";
 import { database } from "faker";
 import { afterTestRoutine, beforeTestRoutine } from "./test-routines";
 import { InvalidArgumentsException } from "../app/common/exceptions/invalid-arguments.exception";
+import { emptyDB, seedDB } from "../seed_db";
+import { exit } from "process";
 
 
 const passwordHasher: PasswordHasherSpec = container.resolve("PasswordHasherSpec");
@@ -27,15 +29,19 @@ describe("Tests RegisterUserUsecase", ()=>{
 
     const { password } = userCredentials;
 
-    const validPasswordHash = passwordHasher.hashPassword(password);
-
     const validUser:UserModel =  new UserModel().fromJSON(userCredentials);
 
     const database: DatabaseSpec = container.resolve("DatabaseSpec");
 
+    let validPasswordHash: string;
 
-    before(()=>{
+
+    before(async()=>{
+        validPasswordHash = await passwordHasher.hashPassword(password);
         database.connect();
+        emptyDB(database).then(async()=>{
+            await seedDB(database);
+        });
     });
 
     it("Should throw InvalidArgumentsException on form validation failure", async()=>{
@@ -49,23 +55,23 @@ describe("Tests RegisterUserUsecase", ()=>{
     it("Should register a new user with a valid UserModel persisted", async()=>{
         database.getConnector().query(`DELETE FROM ${USER_TABLE} WHERE email = $1`,[userCredentials.email]).then(async()=>{
             const userRegResponse: UserRegistrationResponse = await new RegisterUserUsecase().execute({...userCredentials});
-            expect(JSON.stringify(userRegResponse.user.toJSON())).to.equal(JSON.stringify({...validUser.toJSON(), id: userRegResponse.user.id, passwordHash: userRegResponse.user.passwordHash}));
+            expect(JSON.stringify(userRegResponse.user.toJSONWithAuthCred())).to.equal(JSON.stringify({...validUser.toJSON(), id: userRegResponse.user.id, passwordHash: userRegResponse.user.passwordHash}));
         });
     });
 
     it("Should register a new user with a valid password hash", async()=>{
-        database.getConnector().query(`DELETE FROM ${USER_TABLE} WHERE email = $1`,[userCredentials.email]).then(async()=>{
-            const userRegResponse: UserRegistrationResponse = await new RegisterUserUsecase().execute({...userCredentials});
-            expect(userRegResponse.user.toJSONWithAuthCred().passwordHash).to.equal(validPasswordHash);
+        const userMail="wilkinson@mail.com";
+        database.getConnector().query(`DELETE FROM ${USER_TABLE} WHERE email = $1`,[userMail]).then(async()=>{
+            database.getConnector().query(`DELETE FROM ${USER_TABLE} WHERE email = $1`,[userCredentials.email]).then(async()=>{
+                const userRegResponse: UserRegistrationResponse = await new RegisterUserUsecase().execute({...userCredentials});
+                expect( await  passwordHasher.verifyPassword(userRegResponse.user.toJSONWithAuthCred().passwordHash, userCredentials.password)).to.equal(true);
+            });
+
         });
     });
 
-    // it("Should return a valid UserRegistrationResponse object", async()=>{
-
-    // });
-
     after(()=>{
-        // afterTestRoutine();
+        exit(0);
     })
 
 });

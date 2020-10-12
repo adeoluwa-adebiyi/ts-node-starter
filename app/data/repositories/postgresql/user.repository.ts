@@ -38,9 +38,6 @@ export class PgSQLUserRepository implements UserRepositorySpec{
     constructor(@inject("DatabaseSpec")private database?: DatabaseSpec){
     }
 
-    // async init(){
-    //     await this.getDatabaseConnector().connect();
-    // }
 
     async deleteUser(userCredentials: UserAuthId): Promise<void> {
 
@@ -61,6 +58,8 @@ export class PgSQLUserRepository implements UserRepositorySpec{
 
     async getUserById(userId: UserAuthId): Promise<UserModel> {
         const {email, id } = userId;
+        console.log(`AUTH: ${JSON.stringify(userId)}`);
+        console.log(`CONNECTOR: ${this.database.getConnector()}`);
         if(id){
             const response = await ((this.getDatabaseConnector())).query(GET_USER_BY_ID_QUERY,[id]);
             if(!response || response.rows.length===0)
@@ -71,6 +70,7 @@ export class PgSQLUserRepository implements UserRepositorySpec{
 
         if(email){
             const response = await ((this.getDatabaseConnector())).query(GET_USER_BY_EMAIL_QUERY,[email]);
+            console.log(`RESPONSE: ${response}`);
             if(!response || response.rows.length===0)
                 throw new ObjectNotFoundException(`User with id ${email} does not exist`);
  
@@ -82,8 +82,7 @@ export class PgSQLUserRepository implements UserRepositorySpec{
     async createUser(userCredentials: UserWithAuthCredJSON): Promise<UserModel> {
         try{
             const { firstname, lastname, dob, email, passwordHash } = userCredentials;
-            (await (this.getDatabaseConnector().query(CREATE_NEW_USER_QUERY,[ firstname, lastname, dob, email, passwordHash ])));
-            return new UserModel().fromJSON( (await (await (this.getDatabaseConnector()).query(GET_USER_BY_EMAIL_QUERY,[userCredentials.email])).rows[0]));
+            return new UserModel().fromJSON( (await (this.getDatabaseConnector().query(CREATE_NEW_USER_QUERY,[ firstname, lastname, dob, email, passwordHash ]))).rows[0]);
         }catch(e){
             console.log(e);
         }
