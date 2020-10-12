@@ -3,6 +3,7 @@ import "reflect-metadata";
 import "../app/appregistry.registry";
 import { container } from "tsyringe";
 import { PasswordHasherSpec } from "../app/common/core/hashers/contract/hasher.interface";
+import { UserLoginCredentials } from "../app/domain/usecases/authenticate-users.usecase";
 
 export const claims = {
     "sub": "1234567890",
@@ -18,6 +19,9 @@ export const KNEX_SQL_CONNECTION_URL = "../sqlite.db";
 export const KNEX_SQL_INVALID_CONNECTION_URL = "../invalidDB.db";
 export const POSTGRES_SQL_CONNECTION_URL  = "";
 export const POSTGRES_SQL_INVALID_CONNECTION_URL  = "";
+
+export const ENDPOINT_HOST = "http://localhost:80";
+
 const userPassword = "jenny.jones";
 export const USER_REGISTRATION_CREDENTIALS = {
     firstname: "Germain",
@@ -27,3 +31,9 @@ export const USER_REGISTRATION_CREDENTIALS = {
     password: userPassword,
     passwordHash: passwordHasher.hashPassword(userPassword)
 };
+
+export const userLoginCredentials:UserLoginCredentials = {
+    username: USER_REGISTRATION_CREDENTIALS.email,
+    // username:"wilkinson@mail.com",
+    password: "testuser123"
+} 

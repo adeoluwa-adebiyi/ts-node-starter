@@ -1,3 +1,3 @@
 export interface AuthenticationSpec<T>{
-    provideAuthentication(): T
+    provideAuthentication(exemptedRoutes: Array<string>): T
 }

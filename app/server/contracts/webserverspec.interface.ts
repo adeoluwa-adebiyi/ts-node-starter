@@ -10,6 +10,12 @@ export interface RoutableWebServerSpec extends WebServerSpec{
     addRoute(path:string, routeHandler: any):RoutableWebServerSpec;
 }
 
+
+export interface MiddlewareConfigurable extends RoutableWebServerSpec{
+    addMiddleware(middleware: any): void;
+}
+
+
 export interface AuthenticatedWebServerSpec<Auth> extends RoutableWebServerSpec{
     configureAuthentication(authentication: AuthenticationSpec<Auth>): AuthenticatedWebServerSpec<Auth>;
 }

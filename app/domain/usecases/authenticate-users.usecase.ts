@@ -29,20 +29,30 @@ export class AuthenticateUserUsecase implements UseCaseSpec<Promise<AuthTokenMod
     constructor(@inject("UserRepositorySpec") private userRepository?: UserRepositorySpec, @inject("TokenAuthSpec") private tokenAuthALgporithm?: JWTTokenAuthAlgorithm){}
 
     async execute(params: UserLoginCredentials): Promise<AuthTokenModel> {
-        const { username } = params;
-        const email = username;
-        const user = await this.userRepository.getUserById({ email });
-        if(user){
-            const accessTokenClaims:UserAuthClaim = {
-                expiresAt: accessTokenExpiryDuration(),
-                id: user.id
+        try{
+            const { username } = params;
+            const email = username;
+            const user = await this.userRepository.getUserById({ email });
+            console.log(user);
+            if(user){
+                const accessTokenClaims:UserAuthClaim = {
+                    expiresAt: accessTokenExpiryDuration(),
+                    id: user.id
+                }
+                return new AuthTokenModel(
+                    this.tokenAuthALgporithm.generateToken(accessTokenClaims),
+                    this.tokenAuthALgporithm.generateToken({...accessTokenClaims, expiresAt: refreshTokenExpiryDuration()})
+                );
+            }else{
+                throw new InvalidLoginCredentialsException("Invalid login credentials");
             }
-            return new AuthTokenModel(
-                this.tokenAuthALgporithm.generateToken(accessTokenClaims),
-                this.tokenAuthALgporithm.generateToken({...accessTokenClaims, expiresAt: refreshTokenExpiryDuration()})
-            );
-        }else{
-            throw new InvalidLoginCredentialsException("Invalid login credentials");
+        }catch(e){
+
+            if(e instanceof InvalidLoginCredentialsException)
+                throw new InvalidLoginCredentialsException("Invalid login credentials");
+
+            else 
+                throw e;
         }
     }
 }

@@ -10,32 +10,38 @@ import { expect } from "chai";
 import { UserRepositorySpec } from "../app/data/repositories/repository.interface";
 import { DatabaseSpec } from "../app/data/datasources/datasource.interface";
 import { RegisterUserUsecase, UserRegistrationResponse } from "../app/domain/usecases/register-user.usecase";
+import { userLoginCredentials } from "./test.data";
+import { TokenAuthSpec } from "../app/server/contracts/tokenauthspec.interface";
+import { emptyDB, seedDB } from "../seed_db";
 
-const userLoginCredentials:UserLoginCredentials = {
-    username:"wilkinson@mail.com",
-    password: "testuser123"
-} 
+
 
 const passwordHasher: PasswordHasherSpec = container.resolve("PasswordHasherSpec");
 const userRepository: UserRepositorySpec = container.resolve("UserRepositorySpec");
 const database: DatabaseSpec = container.resolve("DatabaseSpec");
+const tokenAuthSpec: TokenAuthSpec = container.resolve("TokenAuthSpec");
+const USER_TABLE = "bb";
 
 describe("Tests AuthenticateUser usecase functionality", ()=>{
 
     before(async ()=>{
-        await database.connect();
+        emptyDB(database).then(async()=>{
+            await seedDB(database);
+        });
     })
 
     const { username, password } = userLoginCredentials;
 
     it("Should return valid AuthTokenModels for valid login credentials", async()=>{
-       userRepository.deleteUser({email: userLoginCredentials.username}).then(()=>{
+        return new Promise((resolve)=>{database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
         new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
             const authToken = await new AuthenticateUserUsecase().execute({...userLoginCredentials});
-            new JWTTokenAuthAlgorithm().verify( authToken.accessToken, (err:any, validatedToken:string)=>{
+            tokenAuthSpec.verify( authToken.accessToken, (err:any, validatedToken:string)=>{
                 expect(err).to.equal(null);
-                expect(validatedToken).to.be("string");
+                expect(validatedToken).to.be.instanceOf(Object);
+                resolve();
                });
+            });
            })
        })
     }); 

@@ -1,4 +1,4 @@
-import { AuthenticatedWebServerSpec, RoutableWebServerSpec } from "./contracts/webserverspec.interface";
+import { AuthenticatedWebServerSpec, MiddlewareConfigurable, RoutableWebServerSpec } from "./contracts/webserverspec.interface";
 import express, {Express, RequestHandler, RequestParamHandler} from "express";
 import { AuthenticationSpec } from "./contracts/authenticationspec.interface";
 import { Server } from "http";
@@ -6,24 +6,29 @@ import { inject, injectable } from "tsyringe";
 
 
 @injectable()
-export class ExpressWebServer implements AuthenticatedWebServerSpec<RequestHandler>{
+export class ExpressWebServer implements AuthenticatedWebServerSpec<RequestHandler>, MiddlewareConfigurable{
 
     private app: Express;
     private _options:any;
     private auth: RequestHandler = null;
     private server: Server = null;
+    private exemptedRoutes: Array<string>;
 
     get options(): any{
         return this._options;
     }
 
-    constructor(@inject("AuthenticationSpec<<express.RequestHandler>>") authentication: AuthenticationSpec<express.RequestHandler>){
+    constructor(@inject("AuthenticationSpec<<express.RequestHandler>>") authentication: AuthenticationSpec<express.RequestHandler>, exemptedAuthRoutes: Array<string>=[]){
         this.app = express();
-        this.auth = authentication?.provideAuthentication();
+        this.exemptedRoutes = exemptedAuthRoutes;
+        this.auth = authentication?.provideAuthentication(exemptedAuthRoutes);
+    }
+    addMiddleware(middleware: any): void {
+        this.app.use(middleware);
     }
 
     configureAuthentication(authentication: AuthenticationSpec<express.RequestHandler>): AuthenticatedWebServerSpec<RequestHandler> {
-        this.auth = authentication.provideAuthentication();
+        this.auth = authentication.provideAuthentication(this.exemptedRoutes);
         return this;
     }
 

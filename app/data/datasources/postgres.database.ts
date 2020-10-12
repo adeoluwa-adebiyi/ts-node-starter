@@ -55,7 +55,7 @@ export class PostgresDatabase implements CredentialDatabase<Client>{
         // keepAlive: false
        })
 
-       await this.client.connect();
+       return await this.client.connect();
     }
     
     getConnector():Client {
