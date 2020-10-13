@@ -10,23 +10,18 @@ export class JWTAuthentication implements AuthenticationSpec<express.RequestHand
     constructor(@inject("TokenAuthSpec") private tokenAuthentication?: TokenAuthSpec, @inject("UserRepositorySpec") private userRepository?: UserRepositorySpec){}
 
     provideAuthentication(exemptedRoutes:Array<string>): express.RequestHandler{
-        console.log("ROUTES:");
-        console.log(exemptedRoutes);
         let exempted = false;
         const requestHandler: express.RequestHandler = (req, res, next)=>{
             try{
 
                 for(let route of exemptedRoutes){
-                    console.log(req.baseUrl);
                     if(req.baseUrl.startsWith(route)){
-                        console.log(`ROUTE: ${route}`);
                         exempted = true;
                         break;
                     }
                 }
 
                 if(exempted){
-                    console.log("NEXT");
                     next();
                     return;
                 }

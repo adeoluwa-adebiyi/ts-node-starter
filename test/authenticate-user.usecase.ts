@@ -13,6 +13,7 @@ import { RegisterUserUsecase, UserRegistrationResponse } from "../app/domain/use
 import { userLoginCredentials } from "./test.data";
 import { TokenAuthSpec } from "../app/server/contracts/tokenauthspec.interface";
 import { emptyDB, seedDB } from "../seed_db";
+import { InvalidLoginCredentialsException } from "../app/common/exceptions/invalid-login-credentials.exception";
 
 
 
@@ -21,6 +22,7 @@ const userRepository: UserRepositorySpec = container.resolve("UserRepositorySpec
 const database: DatabaseSpec = container.resolve("DatabaseSpec");
 const tokenAuthSpec: TokenAuthSpec = container.resolve("TokenAuthSpec");
 const USER_TABLE = "bb";
+const invalidPassword = "itsacrazyworld";
 
 describe("Tests AuthenticateUser usecase functionality", ()=>{
 
@@ -41,6 +43,23 @@ describe("Tests AuthenticateUser usecase functionality", ()=>{
                 expect(validatedToken).to.be.instanceOf(Object);
                 resolve();
                });
+            });
+           })
+       })
+    }); 
+
+    it("Should return InvalidLoginCredentialsException for invalid login credentials", async()=>{
+        return new Promise((resolve)=>{database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
+        new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
+            
+            try{
+                const authToken = await new AuthenticateUserUsecase().execute({...userLoginCredentials, password: invalidPassword});
+                expect(authToken).to.equal(undefined);
+                resolve();
+            }catch(e){
+                expect(e).to.be.instanceOf(InvalidLoginCredentialsException);
+                resolve();
+            }
             });
            })
        })
