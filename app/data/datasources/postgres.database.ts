@@ -40,8 +40,8 @@ export class PostgresDatabase implements CredentialDatabase<Client>{
         if(!this.user)
             throw new InvalidArgumentsException("database user cannot be null!");
 
-        if(!this.database)
-            throw new InvalidArgumentsException("database name cannot be null!");
+        // if(!this.database)
+        //     throw new InvalidArgumentsException("database name cannot be null!");
 
         if(!this.password)
             throw new InvalidArgumentsException("database password cannot be null!");
@@ -52,6 +52,7 @@ export class PostgresDatabase implements CredentialDatabase<Client>{
         user: this.user,
         database: this.database,
         password: this.password,
+        ssl:true
         // keepAlive: false
        })
 

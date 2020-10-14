@@ -50,3 +50,8 @@ export const emptyDB = async(db: DatabaseSpec)=>{
 
     await db.getConnector().query(`DELETE FROM ${TABLE_NAME}`);
 }
+
+
+export const  closeDBClientConnection = async(db: DatabaseSpec): Promise<void> =>{
+    await (<Client>db.getConnector()).end();
+}

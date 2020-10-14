@@ -35,7 +35,8 @@ describe("Tests AuthenticateUser usecase functionality", ()=>{
     const { username, password } = userLoginCredentials;
 
     it("Should return valid AuthTokenModels for valid login credentials", async()=>{
-        return new Promise((resolve)=>{database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
+        return new Promise((resolve)=>{
+        database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
         new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
             const authToken = await new AuthenticateUserUsecase().execute({...userLoginCredentials});
             tokenAuthSpec.verify( authToken.accessToken, (err:any, validatedToken:string)=>{
@@ -49,7 +50,8 @@ describe("Tests AuthenticateUser usecase functionality", ()=>{
     }); 
 
     it("Should return InvalidLoginCredentialsException for invalid login credentials", async()=>{
-        return new Promise((resolve)=>{database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
+        return new Promise((resolve)=>{
+        database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
         new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
             
             try{
@@ -60,6 +62,7 @@ describe("Tests AuthenticateUser usecase functionality", ()=>{
                 expect(e).to.be.instanceOf(InvalidLoginCredentialsException);
                 resolve();
             }
+
             });
            })
        })

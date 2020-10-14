@@ -39,8 +39,10 @@ export class RegisterUserUsecase implements UseCaseSpec<Promise<UserRegistration
         if(!params.password)
             throw new InvalidArgumentsException("password field cannot be null");
 
+        const pwdHash = await this.passwordHasher.hashPassword(params.password);
+
         return <UserRegistrationResponse>{
-            user: await this.userRepository.createUser({...params, passwordHash: await this.passwordHasher.hashPassword(params.password)})
+            user: await this.userRepository.createUser({...params, passwordHash: pwdHash})
         }
         
     }

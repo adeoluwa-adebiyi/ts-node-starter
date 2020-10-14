@@ -8,7 +8,7 @@ import { RegisterUserUsecase, UserRegistrationResponse } from "../../../app/doma
 import { AuthRouter, AUTH_USER_ROUTE_ENDPOINT } from "../../../app/routes/express/auth.route";
 import { RoutableWebServerSpec, WebServerSpec } from "../../../app/server/contracts/webserverspec.interface";
 import { JWTTokenAuthAlgorithm } from "../../../app/server/core/jwt-token.token-auth";
-import { emptyDB, seedDB } from "../../../seed_db";
+import { closeDBClientConnection, emptyDB, seedDB } from "../../../seed_db";
 import { ENDPOINT_HOST, userLoginCredentials, USER_REGISTRATION_CREDENTIALS } from "../../test.data"
 
 const userCredentials = USER_REGISTRATION_CREDENTIALS;
@@ -77,5 +77,9 @@ describe("Test Auth: /auth endpoint", ()=>{
             });
         });
     });
+
+    after(()=>{
+        // exit(0);
+    })
 
 })

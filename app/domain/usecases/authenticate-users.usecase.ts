@@ -30,7 +30,8 @@ export class AuthenticateUserUsecase implements UseCaseSpec<Promise<AuthTokenMod
     constructor(
         @inject("UserRepositorySpec") private userRepository?: UserRepositorySpec, 
         @inject("TokenAuthSpec") private tokenAuthALgporithm?: JWTTokenAuthAlgorithm, 
-        @inject("PasswordHasherSpec") private passswordHasher?: PasswordHasherSpec){}
+        @inject("PasswordHasherSpec") private passswordHasher?: PasswordHasherSpec
+        ){}
 
     async execute(params: UserLoginCredentials): Promise<AuthTokenModel> {
         try{
@@ -40,6 +41,10 @@ export class AuthenticateUserUsecase implements UseCaseSpec<Promise<AuthTokenMod
             let passwordCorrect;
             try{
              passwordCorrect = await this.passswordHasher.verifyPassword(user.passwordHash, password);
+             console.log(username)
+             console.log(password)
+             console.log(user.passwordHash);
+             console.log(passwordCorrect);
             }catch(e){
                 throw new InvalidLoginCredentialsException("Invalid login credentials");
             }

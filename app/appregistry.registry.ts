@@ -21,6 +21,9 @@ import { PORT, HOST, DB_URI, SECRET, DB_HOST, DB_PORT, DB_USERNAME, DB_NAME, DB_
 import { PostgresDatabase } from "./data/datasources/postgres.database";
 import { PgSQLUserRepository } from "./data/repositories/postgresql/user.repository";
 import bodyParser from "body-parser";
+import { AuthControllerSpec } from "./domain/controllers/auth-controller.interface";
+import { AuthController } from "./domain/controllers/express/auth.controller";
+import { AuthenticateUserUsecase } from "./domain/usecases/authenticate-users.usecase";
 
 const APP_SECRET = SECRET;
 
@@ -40,6 +43,16 @@ container.register<UserRepositorySpec>("UserRepositorySpec", { useClass: PgSQLUs
 container.register<TokenAuthSpec>("TokenAuthSpec", {useValue: new JWTTokenAuthAlgorithm(APP_SECRET)});
 container.register<AuthenticationSpec<express.RequestHandler>>("AuthenticationSpec<<express.RequestHandler>>", {useClass: JWTAuthentication});
 container.register<PasswordHasherSpec>("PasswordHasherSpec", { useValue: new Argon2PasswordHasher()});
+
+
+// Register Controllers
+container.register<AuthControllerSpec>("AuthControllerSpec", { useValue:  new AuthController(new AuthenticateUserUsecase )});
+
+//
+
+
+
+
 const httpServer: ExpressWebServer = new ExpressWebServer(container.resolve("AuthenticationSpec<<express.RequestHandler>>"), EXEMPTED_ROUTES);
 (<MiddlewareConfigurable>httpServer).addMiddleware(bodyParser.json());
 container.register<RoutableWebServerSpec>("RoutableWebServerSpec", {useValue: httpServer});
