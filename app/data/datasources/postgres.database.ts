@@ -1,6 +1,8 @@
 import { Client } from "pg";
+import { ConnectionOptions } from "tls";
 import { InvalidArgumentsException } from "../../common/exceptions/invalid-arguments.exception";
 import { CredentialDatabase, UrlDatabase } from "./datasource.interface";
+import fs from "fs";
 
 export class PostgresDatabase implements CredentialDatabase<Client>{
 
@@ -52,7 +54,10 @@ export class PostgresDatabase implements CredentialDatabase<Client>{
         user: this.user,
         database: this.database,
         password: this.password,
-        ssl:true
+        ssl:true,
+        // ssl: {
+        //     ca: fs.readFileSync(__dirname + '/ca-certificate.crt'),
+        // }
         // keepAlive: false
        })
 

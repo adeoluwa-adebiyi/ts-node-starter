@@ -38,8 +38,11 @@ describe("Tests AuthenticateUser usecase functionality", ()=>{
         return new Promise((resolve)=>{
         database.getConnector().query(`DELETE FROM ${USER_TABLE} where email = $1 `,[userLoginCredentials.username]).then(()=>{
         new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
+            console.log(userRegResponse);
             const authToken = await new AuthenticateUserUsecase().execute({...userLoginCredentials});
             tokenAuthSpec.verify( authToken.accessToken, (err:any, validatedToken:string)=>{
+                console.log("ERR: "+JSON.stringify(err));
+                console.log("TOKEN: "+JSON.stringify(validatedToken));
                 expect(err).to.equal(null);
                 expect(validatedToken).to.be.instanceOf(Object);
                 resolve();

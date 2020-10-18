@@ -1,21 +1,26 @@
-import Axios from "axios"
+import Axios from "axios";
+import bodyParser from "body-parser";
 import { expect } from "chai";
-import { exit } from "process";
 import { container } from "tsyringe";
+import { HOST } from "../../../app/config/app.config";
 import { DatabaseSpec } from "../../../app/data/datasources/datasource.interface";
 import { UserRepositorySpec } from "../../../app/data/repositories/repository.interface";
-import { RegisterUserUsecase, UserRegistrationResponse } from "../../../app/domain/usecases/register-user.usecase";
-import { AuthRouter, AUTH_USER_ROUTE_ENDPOINT } from "../../../app/routes/express/auth.route";
-import { RoutableWebServerSpec, WebServerSpec } from "../../../app/server/contracts/webserverspec.interface";
+import { RegisterUserUsecaseParams } from "../../../app/domain/usecases/register-user.usecase";
+import { IndexRouter } from "../../../app/routes/express/index.route";
+import { INDEX_ENDPOINT, REGISTER_USER_ENDPOINT } from "../../../app/routes/urls";
+import { MiddlewareConfigurable, RoutableWebServerSpec } from "../../../app/server/contracts/webserverspec.interface";
 import { JWTTokenAuthAlgorithm } from "../../../app/server/core/jwt-token.token-auth";
-import { closeDBClientConnection, emptyDB, seedDB } from "../../../seed_db";
-import { ENDPOINT_HOST, userLoginCredentials, USER_REGISTRATION_CREDENTIALS } from "../../test.data"
+import { ExpressWebServer } from "../../../app/server/express.webserver";
+import { USER_REGISTRATION_CREDENTIALS } from "../../test.data";
+
 
 const userCredentials = USER_REGISTRATION_CREDENTIALS;
 
 const AUTH_USER_ROUTE = "/auth";
 
-const webServer: RoutableWebServerSpec = container.resolve("RoutableWebServerSpec");
+const webServer: RoutableWebServerSpec = new ExpressWebServer( container.resolve("AuthenticationSpec<<express.RequestHandler>>"), ["/register"] );
+
+(<MiddlewareConfigurable>webServer).addMiddleware(bodyParser.json());
 
 const userRepository: UserRepositorySpec = container.resolve("UserRepositorySpec");
 
@@ -23,22 +28,23 @@ const database: DatabaseSpec = container.resolve("DatabaseSpec");
 
 const USER_TABLE = "bb";
 
+const userLoginCredentials = {
+    username: userCredentials.email,
+    password: userCredentials.password
+}
 
-describe("Test Auth: /auth endpoint", ()=>{
+describe("Tests User registration endpoint",()=>{
 
-    before(async()=>{
-        const authRouter = AuthRouter;
-        webServer.addRoute(AUTH_USER_ROUTE_ENDPOINT, authRouter);
-        emptyDB(database).then(async()=>{
-            await seedDB(database);
-        });
+
+    before(()=>{
+        webServer.listen(80, "127.0.0.1");
+        webServer.addRoute(INDEX_ENDPOINT, IndexRouter);
     })
 
-    it("Should generate valid auth tokens for registered users", async()=>{
-        webServer.listen(80, "127.0.0.1");
-        userRepository.deleteUser({email: userLoginCredentials.username}).then(()=>{
-
-        new RegisterUserUsecase().execute({...userLoginCredentials, email: userLoginCredentials.username}).then(async (userRegResponse: UserRegistrationResponse)=>{
+    
+    it("Should generate valid auth tokens for registered users",()=>{
+        // return new Promise((resolve)=>{
+        userRepository.deleteUser({email: userLoginCredentials.username}).then(async()=>{
 
             try{
 
@@ -46,22 +52,25 @@ describe("Test Auth: /auth endpoint", ()=>{
         
                 const response  = await Axios({
                     method:'post',
-                    url: "http://127.0.0.1"+AUTH_USER_ROUTE_ENDPOINT,
+                    url: "http://127.0.0.1"+REGISTER_USER_ENDPOINT,
                     data:{
-                        username: email,
+                        email,
                         password
-                    }
+                    },
                 });
+                    
                 
                 const {data} = response.data;
         
                 const { authToken } = data;
+
+                console.log(`AUTH_TOKEN: ${JSON.stringify(authToken)}`);
         
                 new JWTTokenAuthAlgorithm().verify( authToken.accessToken, (err:any, validatedToken:string)=>{
                     expect(err).to.equal(null);
                     expect(validatedToken).to.be("string");
                 });
-        
+
                 new JWTTokenAuthAlgorithm().verify( authToken.refreshToken, (err:any, validatedToken:string)=>{
                     expect(err).to.equal(null);
                     expect(validatedToken).to.be("string");
@@ -70,13 +79,12 @@ describe("Test Auth: /auth endpoint", ()=>{
             }catch(e){
                 console.log(e);
             }
-        
-            });
         });
+        
+        // });
     });
 
     after(()=>{
         webServer.close();
     })
-
-})
+});

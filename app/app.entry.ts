@@ -10,6 +10,8 @@ import { PORT, HOST, DB_URI } from "./config/app.config"
 import { AuthRouter, AUTH_USER_ROUTE_ENDPOINT } from "./routes/express/auth.route";
 import { DatabaseSpec } from "./data/datasources/datasource.interface";
 import bodyParser from "body-parser";
+import { IndexRouter } from "./routes/express/index.route";
+import { INDEX_ENDPOINT } from "./routes/urls";
 
 
 const database: DatabaseSpec = container.resolve("DatabaseSpec");
@@ -19,6 +21,7 @@ database.connect().then(()=>{
 
   // Add routes
   httpServer.addRoute(AUTH_USER_ROUTE_ENDPOINT, AuthRouter);
+  httpServer.addRoute(INDEX_ENDPOINT, IndexRouter);
 
 
   httpServer.listen(parseInt(PORT.toString()), HOST);
